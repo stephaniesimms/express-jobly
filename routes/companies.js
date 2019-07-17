@@ -1,9 +1,18 @@
 /** GET / companies
-This should return a the handle and name for all of the company objects.It should also allow for the following query string parameters
-search.
+This should return the handle and name for all of the company objects.
+It should also allow for the following query string parameters search.
 This should return JSON of { companies: [companyData, ...] }
 */
 
+router.get('/', async function (req, res, next) {
+  try {
+    const companies = await Company.getCompanies(req.query);
+    return res.json({ companies });
+    
+  } catch (err) {
+    return next(err);
+  }
+});
 
 /**  POST / companies
 This should create a new company and return the newly created company.
