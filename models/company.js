@@ -24,10 +24,11 @@ class Company {
 
     let selectStatement = `SELECT handle, name FROM companies`;
     let finalQuery = '';
+    console.log("hello I am here")
 
-
-
+    
     if (query.min_length > query.max_length) {
+      
       const err = new Error(`Invalid query`);
       err.status = 400;
       throw err;
@@ -37,18 +38,21 @@ class Company {
     let buildClause = [];
     let values = [];
     let idx = 1;
-
+    
     if (query.name) {
+      
       buildClause.push(`name ILIKE $${idx}`);
       values.push(`%${query.name}%`);
       idx += 1;
     }
     if (query.min_employees) {
+      
       buildClause.push(`num_employees>=$${idx}`);
       values.push(Number(query.min_employees));
       idx += 1;
     }
     if (query.max_employees) {
+      
       buildClause.push(`num_employees<=$${idx}`);
       values.push(Number(query.max_employees));
       idx += 1;
@@ -61,12 +65,12 @@ class Company {
       finalQuery = selectStatement + ` WHERE ` + joinedClause;
 
     }
-    console.log('here is final query', finalQuery)
+  
 
     
     let results = await db.query(finalQuery, values)
 
-    if (results.rows === []) {
+    if (results.rows.length === 0) {
       const err = new Error(`No matching companies.`);
       err.status = 404;
       throw err;
