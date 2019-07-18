@@ -1,4 +1,4 @@
-const { _createFinalWhereClause, _createWhereClause} = require('../../models/company');
+const { _createFinalWhereClause, Company } = require('../../models/company');
 
 describe("_createWhereClause()", () => {
   it("should generate proper WHERE clause", function () {

@@ -4,7 +4,7 @@ const sqlForPartialUpdate = require("../helpers/partialUpdate")
 
 class Company {
   /** create new company. 
-   * Return  [{ handle: ..., name: ... , num_employees, description, logo_url...}] */
+   * Return  { handle: ..., name: ... , num_employees, description, logo_url...} */
   static async create({ handle, name, num_employees, description, logo_url }) {
 
     // check for duplicate company by searching for handle, if found throw error
@@ -34,16 +34,10 @@ class Company {
     return result.rows[0];
   }
 
-  /**Return all companies 
-   * [{ handle: ..., name: ... },,,]
+  /** Return all companies [{ handle: ..., name: ... }] or an empty array if none exist
   */
   static async getAll() {
     let results = await db.query(`SELECT handle, name FROM companies`);
-    if (results.rows.length === 0) {
-      const err = new Error(`No companies found`);
-      err.status = 404;
-      throw err;
-    }
     return results.rows;
   }
 
@@ -72,11 +66,25 @@ class Company {
       throw err;
     }
     return results.rows;
+  }
 
+  /** accepts a key/query term and creates a single WHERE clause according to the key */
+  static _createWhereClause(key, idx) {
+    if (key === 'name') {
+      let whereClauseName = `name ILIKE $${idx}`;
+      return whereClauseName;
+
+    } else if (key === "min_employees") {
+      let whereClauseMin = `num_employees>=$${idx}`;
+      return whereClauseMin;
+
+    } else {
+      let whereClauseMax = `num_employees<=$${idx}`
+      return whereClauseMax;
+    }
   }
 
   /** Return specific company based on handle*/
-
   static async getOne(handle) {
     let result = await db.query(
       `SELECT handle, name, num_employees, description, logo_url
@@ -119,6 +127,7 @@ class Company {
     }
     return result.rows[0]
   }
+
 }
 
 // **********************************HELPER FUNCTION**************************************/
@@ -129,7 +138,7 @@ function _createFinalWhereClause(query) {
   let buildClause = [];
 
   for (let key in query) {
-    let whereClause = _createWhereClause(key, idx++)
+    let whereClause = Company._createWhereClause(key, idx++)
     buildClause.push(whereClause);
   }
   let finalWhereClause = buildClause.join(` AND `);
@@ -137,25 +146,11 @@ function _createFinalWhereClause(query) {
   return finalWhereClause;
 }
 
-/** accepts a key/query term and creates a single WHERE clause according to the key */
-function _createWhereClause(key, idx) {
-  if (key === 'name') {
-    let whereClauseName = `name ILIKE $${idx}`;
-    return whereClauseName;
 
-  } else if (key === "min_employees") {
-    let whereClauseMin = `num_employees>=$${idx}`;
-    return whereClauseMin;
-
-  } else {
-    let whereClauseMax = `num_employees<=$${idx}`
-    return whereClauseMax;
-  }
-}
-
-module.exports = {Company,
-  _createFinalWhereClause,
-  _createWhereClause}
+module.exports = {
+  Company,
+  _createFinalWhereClause
+};
 
 
 

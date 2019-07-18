@@ -15,23 +15,17 @@ as JSON of { companies: [companyData, ...] }
 
 router.get('/', async function (req, res, next) {
   // branch out depending on req.query
-  if (Object.keys(req.query).length === 0) {
-    try {
-      const companies = await Company.getAll();
-      return res.json({ companies });
-
-    } catch (err) {
-      return next(err);
+  let companies;
+  try {
+    if (Object.keys(req.query).length === 0) {
+      companies = await Company.getAll(); 
+    } else {
+      companies = await Company.getBySearch(req.query);
     }
-  } else {
-    try {
-      const companies = await Company.getBySearch(req.query);
-      return res.json({ companies });
-
-    } catch (err) {
-      return next(err);
-    }
+  } catch (err) {
+    return next(err);
   }
+  return res.json({ companies });
 });
 
 /**

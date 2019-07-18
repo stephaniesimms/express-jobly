@@ -1,7 +1,7 @@
 const request = require("supertest");
 const app = require("../../app");
 const db = require("../../db");
-const {Company} = require("../../models/company");
+const { Company } = require("../../models/company");
 
 describe("Company Route tests", function () {
   beforeEach(async function () {
@@ -38,15 +38,12 @@ describe("Company Route tests", function () {
       let response = await request(app)
         .get("/companies")
 
-      expect(response.body).toEqual(
-        {
+      expect(response.body).toEqual({
           companies: [
             { handle: "amazon", name: "Amazon" },
             { handle: "apple", name: "Apple" },
             { handle: "rithm", name: "Rithm" }
-          ]
-        }
-      );
+          ]});
     });
 
     test("can get single company by handle", async function () {
@@ -64,6 +61,15 @@ describe("Company Route tests", function () {
       });
     });
 
+    test("get single company by handle returns error if it does not exist", async function () {
+      let response = await request(app)
+        .get("/companies/zillow")
+
+      expect(response.body).toEqual({
+        "message": "No company found.",
+        "status": 404
+      });
+    });
 
     /** GET /companies?name=Amazon => {companies: [...]}  */
     test("can get list of company matched given name", async function () {
@@ -72,7 +78,6 @@ describe("Company Route tests", function () {
 
       expect(response.body).toEqual(
         { companies: [{ handle: "apple", name: "Apple" }] }
-
       );
     });
 
@@ -98,13 +103,11 @@ describe("Company Route tests", function () {
     });
 
     /** GET /companies?min_employees=100&max_employees=10 => {companies: [...]}  */
-
     test("when min is greater than max, it will return error ", async function () {
       let response = await request(app)
         .get("/companies?min_employees=100&max_employees=10")
 
-      expect(response.body).toEqual(
-        {
+      expect(response.body).toEqual({
           "message": "Invalid query",
           "status": 400
         });
@@ -145,7 +148,6 @@ describe("Company Route tests", function () {
         }
       });
     });
-
 
     test("send invalid data missing name should return error", async function () {
       let response = await request(app)
@@ -221,8 +223,6 @@ describe("Company Route tests", function () {
         );
       });
 
-
-
       test("try update company that does not exist should return error", async function () {
         let response = await request(app)
           .patch("/companies/zillow")
@@ -269,9 +269,6 @@ describe("Company Route tests", function () {
         });
       });
     });
-
-
-
   });
 
   afterAll(async function () {
