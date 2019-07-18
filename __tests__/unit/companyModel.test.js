@@ -13,7 +13,7 @@ describe("Test Company Class", function () {
       name: "Amazon",
       num_employees: 3000000,
       description: "Online market place and AWS",
-      logo_url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWYikqi0wGu6e_BLcEcDtINNitmXY_8aKKUsokN3dCeZ3gCF8o"
+      logo_url: "http://media.corporate-ir.net/media_files/IROL/17/176060/Oct18/Amazon%20logo.PNG"
     });
   
     let c2 = await Company.create({
@@ -21,7 +21,7 @@ describe("Test Company Class", function () {
       name: "Apple",
       num_employees: 10000,
       description: "Hip computers and stuff",
-      logo_url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWYikqi0wGu6e_BLcEcDtINNitmXY_8aKKUsokN3dCeZ3gCF8o"
+      logo_url: "https://image.flaticon.com/icons/png/512/23/23656.png"
     });
 
     let c3 = await Company.create({
@@ -32,8 +32,6 @@ describe("Test Company Class", function () {
       logo_url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWYikqi0wGu6e_BLcEcDtINNitmXY_8aKKUsokN3dCeZ3gCF8o"
     });
   });
-
-
 
   test("can get all companies with no search query", async function () {
     let query = {};
@@ -91,19 +89,18 @@ describe("Test Company Class", function () {
     }
   });
 
-  // FIXME - not getting correct error message from model
-  // test("Will get error message if max is smaller than min", async function () {
-  //   let query = { max_employees: 1, min_employees: 100};
-  //   try{
-  //     await Company.getCompanies(query)
-  //   }catch(err){
-  //     expect(err.message).toEqual("Invalid query");
+  test("Will get error message if max is smaller than min", async function () {
+    let query = { max_employees: 1, min_employees: 100};
+    try{
+      await Company.getCompanies(query)
+    }catch(err){
+      expect(err.message).toEqual("Invalid query");
 
-  //   }
-  //  });
-
+    }
+   });
 
 });
+
 
 
 
