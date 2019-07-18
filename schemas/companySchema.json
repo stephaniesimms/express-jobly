@@ -1,0 +1,67 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/root.json",
+  "type": "object",
+  "title": "The Root Schema",
+  "required": [
+    "handle",
+    "name",
+    "num_employees",
+    "description",
+    "logo_url"
+  ],
+  "properties": {
+    "handle": {
+      "$id": "#/properties/handle",
+      "type": "string",
+      "title": "The Handle Schema",
+      "default": "",
+      "examples": [
+        "apple"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "name": {
+      "$id": "#/properties/name",
+      "type": "string",
+      "title": "The Name Schema",
+      "default": "",
+      "examples": [
+        "Apple"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "num_employees": {
+      "$id": "#/properties/num_employees",
+      "type": "integer",
+      "title": "The Num_employees Schema",
+      "default": 1,
+      "examples": [
+        10000
+      ],
+      "minimum": 1.0
+    },
+    "description": {
+      "$id": "#/properties/description",
+      "type": "string",
+      "title": "The Description Schema",
+      "default": "",
+      "examples": [
+        "Hip computers and stuff"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "logo_url": {
+      "$id": "#/properties/logo_url",
+      "type": "string",
+      "title": "The Logo_url Schema",
+      "default": "https://www.designevo.com/res/templates/thumb_small/bright-blue-kaleidoscope.png",
+      "examples": [
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWYikqi0wGu6e_BLcEcDtINNitmXY_8aKKUsokN3dCeZ3gCF8o"
+      ],
+      "pattern": "^(.*)$",
+      "format": "uri"
+    }
+  }
+}
