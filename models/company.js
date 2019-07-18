@@ -1,77 +1,10 @@
 /** Company class for jobly */
 const db = require("../db");
-const sqlForPartialUpdate = require('../helpers/partialUpdate');
 
 
 class Company {
-
-/** Get all companies with ability to filter by name, min, and/or max number 
- of employees based on search terms provided in the query string.
- */
-
-  static async getCompanies(query) {
-
-    let selectStatement = `SELECT handle, name FROM companies`;
-    let finalQuery = '';
-    
-    // If the min_employees parameter is greater than the max_employees paramteter, 
-    // respond with a 400 status and a message 
-    if (query.min_employees > query.max_employees) {
-      const err = new Error(`Invalid query`);
-      err.status = 400;
-      throw err;
-    }
-
-    let buildClause = [];
-    let values = [];
-    let idx = 1;
-    
-    // build SQL query based on any search terms provided in the query string 
-    if (query.name) {
-      buildClause.push(`name ILIKE $${idx}`);
-      values.push(`%${query.name}%`);
-      idx += 1;
-    }
-
-    if (query.min_employees) {   
-      buildClause.push(`num_employees>=$${idx}`);
-      values.push(Number(query.min_employees));
-      idx += 1;
-    }
-    if (query.max_employees) {  
-      buildClause.push(`num_employees<=$${idx}`);
-      values.push(Number(query.max_employees));
-      idx += 1;
-    }
-
-    let joinedClause = buildClause.join(` AND `);
-
-    if (joinedClause.length === 0) {
-      finalQuery = selectStatement;
-    } else {
-      finalQuery = selectStatement + ` WHERE ` + joinedClause;
-    }
-  
-    let results = await db.query(finalQuery, values)
-
-    if (results.rows.length === 0) {
-      const err = new Error(`No matching companies.`);
-      err.status = 404;
-      throw err;
-    }
-    return results.rows;
-  }
-
-
-  /** Get a single company by its handle/id and return */
-
-  //getCompany()
-
-
-
-
-  /**  Create a new company and return it */
-
+  /** create new company. 
+   * Return  [{ handle: ..., name: ... , num_employees, description, logo_url...}] */
   static async create({ handle, name, num_employees, description, logo_url }) {
     const result = await db.query(
       `INSERT INTO companies (
@@ -83,54 +16,94 @@ class Company {
       VALUES ($1, $2, $3, $4, $5)
        RETURNING handle, name, num_employees, description, logo_url`,
       [handle, name, num_employees, description, logo_url]);
-    // console.log("Company.create result", result);
+
     return result.rows[0];
   }
 
+  /**Return all companies 
+   * [{ handle: ..., name: ... },,,]
+  */
+  static async getAll() {
 
+    let results = await db.query(`SELECT handle, name FROM companies`)
+    if (results.rows.length === 0) {
+      const err = new Error(`No companies found`);
+      err.status = 404;
+      throw err;
+    }
 
-  /** Update a company and return it */
+    return results.rows;
+  }
 
-  // patch()
+/**take query object return any matching companies with the query 
+ * Return [{ handle: ..., name: ... },,,]
+*/
+  static async getBySearch(query) {
+    let baseQuery = `SELECT handle, name FROM companies`
 
+    let values = Object.values(query)
 
+    if (query.min_employees > query.max_employees) {
+      const err = new Error(`Invalid query`);
+      err.status = 400;
+      throw err;
+    }
 
-  /** Delete a company by its handle/id */
+    let whereClause = createFinalWhereClause(query)
+    let finalQuery = `${baseQuery} WHERE ${whereClause}`
 
-  // delete()
+    let results = await db.query(finalQuery, values);
+    
+    if (results.rows.length === 0) {
+      const err = new Error(`No matching companies.`);
+      err.status = 404;
+      throw err;
+    }
+
+    return results.rows;
+
+  }
 
 }
 
+// **********************************HELPER FUNCTION**************************************/
 
+/** take object of query return string of where clause*/
+function createFinalWhereClause(query) {
+  let idx = 1;
+  let buildClause = [];
+  for (let key in query) {
+    let whereClause = createWhereClause(key, idx)
+    buildClause.push(whereClause)
+    idx++
+  }
+  let finalWhereClause = buildClause.join(` AND `);
 
+  return finalWhereClause
+}
 
+/**take a key and create single where clause according to the key */
+function createWhereClause(key, idx) {
 
+  if (key === 'name') {
+    let whereClauseName = `name ILIKE $${idx}`;
+    return whereClauseName
 
+  } else if (key === "min_employees") {
+    let whereClauseMin = `num_employees>=$${idx}`;
+    return whereClauseMin
 
+  } else {
+    let whereClauseMax = `num_employees<=$${idx}`
 
+    return whereClauseMax
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  }
+}
 
 module.exports = Company;
+
+
+
+
+
