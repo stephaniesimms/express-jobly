@@ -1,7 +1,7 @@
 const request = require("supertest");
 const app = require("../../app");
 const db = require("../../db");
-const Company = require("../../models/company");
+const {Company} = require("../../models/company");
 
 describe("Company Route tests", function () {
   beforeEach(async function () {
@@ -146,6 +146,23 @@ describe("Company Route tests", function () {
       });
     });
 
+
+    test("send invalid data missing name should return error", async function () {
+      let response = await request(app)
+        .post("/companies")
+        .send({
+          handle: "zillow",
+          num_employees: 100000,
+          description: "Real Estate solution",
+          logo_url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWYikqi0wGu6e_BLcEcDtINNitmXY_8aKKUsokN3dCeZ3gCF8o"
+        })
+
+      expect(response.statusCode).toBe(400);
+      expect(response.body.message).toEqual(
+        ["instance requires property \"name\""]
+      );
+    });
+
     test("try create duplicate company should return error", async function () {
       let response = await request(app)
         .post("/companies")
@@ -163,6 +180,98 @@ describe("Company Route tests", function () {
         "status": 400
       });
     });
+
+
+    describe("PATCH/companies/:handle", function () {
+      test("Can update a company", async function () {
+        let response = await request(app)
+          .patch("/companies/amazon")
+          .send({
+            handle: "amazon",
+            name: "AmazonUpdate",
+            num_employees: 100000,
+            description: "Online market place and AWS",
+            logo_url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWYikqi0wGu6e_BLcEcDtINNitmXY_8aKKUsokN3dCeZ3gCF8o"
+          })
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toEqual({
+          company: {
+            handle: "amazon",
+            name: "AmazonUpdate",
+            num_employees: 100000,
+            description: "Online market place and AWS",
+            logo_url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWYikqi0wGu6e_BLcEcDtINNitmXY_8aKKUsokN3dCeZ3gCF8o"
+          }
+        });
+      });
+
+      test("send invalid number of employee to update should return error", async function () {
+        let response = await request(app)
+          .patch("/companies/amazon")
+          .send({
+            handle: "amazon",
+            name: "Amazon",
+            num_employees: 0,
+          })
+
+        expect(response.statusCode).toBe(400);
+        expect(response.body.message).toEqual(
+          ["instance.num_employees must have a minimum value of 1"]
+        );
+      });
+
+
+
+      test("try update company that does not exist should return error", async function () {
+        let response = await request(app)
+          .patch("/companies/zillow")
+          .send({
+            handle: "zillow",
+            name: "Zillow",
+            num_employees: 100000,
+            description: "Real Estate solution",
+            logo_url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWYikqi0wGu6e_BLcEcDtINNitmXY_8aKKUsokN3dCeZ3gCF8o"
+          });
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toEqual({
+          "message": "No companies found",
+          "status": 404
+        });
+      });
+    });
+
+
+    describe("DELETE/companies/:handle", function () {
+      test("Can delete a company", async function () {
+        let response = await request(app)
+          .delete("/companies/amazon")
+          .send({
+            handle: "amazon",
+          })
+
+        expect(response.statusCode).toBe(200);
+        expect(response.body).toEqual({
+          "message": "Company deleted"
+        });
+      });
+
+      test("try delete company that does not exist should return error", async function () {
+        let response = await request(app)
+          .delete("/companies/zillow")
+          .send({
+            handle: "zillow",
+          });
+        expect(response.statusCode).toBe(404);
+        expect(response.body).toEqual({
+          "message": "No companies with the handle",
+          "status": 404
+        });
+      });
+    });
+
+
+
   });
 
   afterAll(async function () {

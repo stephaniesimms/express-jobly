@@ -1,4 +1,4 @@
-const Company = require("../../models/company")
+const {Company} = require("../../models/company")
 
 const db = require("../../db");
 
@@ -91,8 +91,6 @@ describe("Test Company Class", function () {
 
     }
   });
-
-
 });
 
 

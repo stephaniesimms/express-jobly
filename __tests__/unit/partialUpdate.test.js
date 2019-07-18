@@ -19,5 +19,3 @@ describe("partialUpdate()", () => {
 
 
 
-// let answer = {'query': `UPDATE companies SET num_employees=$1 WHERE handle=$2 RETURNING *`, 
-// 'values': [10, 'amazon'] };

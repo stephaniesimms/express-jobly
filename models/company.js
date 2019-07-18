@@ -1,24 +1,24 @@
 /** Company class for jobly */
 const db = require("../db");
-
+const sqlForPartialUpdate = require("../helpers/partialUpdate")
 
 class Company {
   /** create new company. 
    * Return  [{ handle: ..., name: ... , num_employees, description, logo_url...}] */
   static async create({ handle, name, num_employees, description, logo_url }) {
-    
+
     // check for duplicate company by searching for handle, if found throw error
     let checkForCompany = await db.query(
       `SELECT handle, name 
       FROM companies
       WHERE handle=$1`,
       [handle]);
-      
-      if(checkForCompany.rows.length > 0){
-        const err = new Error(`Company already exists`);
-        err.status = 400;
-        throw err;
-      }
+
+    if (checkForCompany.rows.length > 0) {
+      const err = new Error(`Company already exists`);
+      err.status = 400;
+      throw err;
+    }
 
     const result = await db.query(
       `INSERT INTO companies (
@@ -47,9 +47,9 @@ class Company {
     return results.rows;
   }
 
-/** Take query object from GET and return any matching companies based on the query 
- * Return [{ handle: ..., name: ... },,,]
-*/
+  /** Take query object from GET route and return any matching companies based on the query 
+   * Return [{ handle: ..., name: ... },,,]
+  */
   static async getBySearch(query) {
     let baseQuery = `SELECT handle, name FROM companies`;
 
@@ -65,7 +65,7 @@ class Company {
     let finalQuery = `${baseQuery} WHERE ${whereClause}`;
 
     let results = await db.query(finalQuery, values);
-    
+
     if (results.rows.length === 0) {
       const err = new Error(`No matching companies.`);
       err.status = 404;
@@ -75,30 +75,50 @@ class Company {
 
   }
 
-static async getOne(handle) {
-  let result = await db.query(
-    `SELECT handle, name, num_employees, description, logo_url
+  /** Return specific company based on handle*/
+
+  static async getOne(handle) {
+    let result = await db.query(
+      `SELECT handle, name, num_employees, description, logo_url
     FROM companies
     WHERE handle=$1`,
-  [handle]);
-  if(result.rows.length === 0){
-    const err = new Error(`No company found.`);
-    err.status = 404;
-    throw err;
-   
+      [handle]);
+    if (result.rows.length === 0) {
+      const err = new Error(`No company found.`);
+      err.status = 404;
+      throw err;
+
+    }
+    return result.rows[0];
   }
-  return result.rows[0];
-}
 
-
-// static async update(handle, data)
-// let { query, values } = sqlForPartialUpdate( "companies", data, "handle", data)
-// db.query(query, values)
-// if not found throw error
-
-
-// remove()
-
+  /** Update existing company with any provided data */
+  static async update(handle, data) {
+    let { query, values } = sqlForPartialUpdate("companies", data, "handle", handle)
+    let result = await db.query(query, values);
+    if (result.rows.length === 0) {
+      const err = new Error(`No companies found`);
+      err.status = 404;
+      throw err;
+    }
+    return result.rows[0]
+  }
+  
+  /**Delete specific company based on handle */
+  static async remove(handle){
+    const result = await db.query(
+      `DELETE FROM companies 
+         WHERE handle = $1 
+         RETURNING handle`,
+      [handle]);
+    
+      if (result.rows.length === 0) {
+      const err = new Error(`No companies with the handle`);
+      err.status = 404;
+      throw err;
+    }
+    return result.rows[0]
+  }
 }
 
 // **********************************HELPER FUNCTION**************************************/
@@ -107,7 +127,7 @@ static async getOne(handle) {
 function _createFinalWhereClause(query) {
   let idx = 1;
   let buildClause = [];
-  
+
   for (let key in query) {
     let whereClause = _createWhereClause(key, idx++)
     buildClause.push(whereClause);
@@ -133,7 +153,10 @@ function _createWhereClause(key, idx) {
   }
 }
 
-module.exports = Company;
+module.exports = {Company,
+  _createFinalWhereClause,
+  _createWhereClause}
+
 
 
 
