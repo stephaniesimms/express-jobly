@@ -88,9 +88,10 @@ class Company {
   static async getOne(handle) {
     let result = await db.query(
       `SELECT handle, name, num_employees, description, logo_url
-    FROM companies
-    WHERE handle=$1`,
-      [handle]);
+        FROM companies
+        WHERE handle=$1`,
+        [handle]);
+
     if (result.rows.length === 0) {
       const err = new Error(`No company found.`);
       err.status = 404;
@@ -125,7 +126,7 @@ class Company {
       err.status = 404;
       throw err;
     }
-    return result.rows[0]
+    return result.rows[0];
   }
 
 }
