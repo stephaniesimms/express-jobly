@@ -8,11 +8,11 @@ const companySchema = require("../schemas/companySchema.json");
 
 const router = new Router();
 
+
 /** GET / companies
 Return the handle and name for all of the company objects
 as JSON of { companies: [companyData, ...] }
 */
-
 router.get('/', async function (req, res, next) {
   // branch out depending on req.query
   let companies;
