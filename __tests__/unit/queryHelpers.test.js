@@ -3,7 +3,7 @@ const { _createFinalWhereClause, Company } = require('../../models/company');
 describe("_createWhereClause()", () => {
   it("should generate proper WHERE clause", function () {
     
-    let result = _createWhereClause("name", 1)
+    let result = Company. _createWhereClause("name", 1)
     expect(result).toEqual(`name ILIKE $1`);
 
   });

@@ -13,7 +13,7 @@ class ExpressError extends Error {
     this.status = status;
     if (process.env.NODE_ENV !== "test"){
     console.error(this.stack);
-    }
+     }
   }
 }
 
