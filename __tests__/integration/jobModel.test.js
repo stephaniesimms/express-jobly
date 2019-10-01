@@ -55,27 +55,37 @@ describe("Test Company Class", function () {
         });
     });
 
+    let c2 = await Company.create({
+      handle: "apple",
+      name: "Apple",
+      num_employees: 10000,
+      description: "Hip computers and stuff",
+      logo_url: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQWYikqi0wGu6e_BLcEcDtINNitmXY_8aKKUsokN3dCeZ3gCF8o"
+    });
 
+    let j1 = await Job.create({
+      title: "Junior Backend Developer",
+      salary: 90000,
+      equity: 0.01,
+      company_handle: "amazon",
+    });
 
     test("can get all jobs with no search query", async function () {
         let c = await Job.getAll();
 
-        expect(c).toEqual(
-            [{ title: "Junior Backend Developer", company_handle: "amazon" },
-            { title: "Senior Backend Developer", company_handle: "amazon" },
-            { title: "Fullstack Developer", company_handle: "apple" },
-            { title: "Administrative assistant", company_handle: "apple" },
-            ]);
+    let j4 = await Job.create({
+      title: "Administrative assistant",
+      salary: 70000,
+      equity: 0.001,
+      company_handle: "apple",
     });
+  });
 
     test("can get companies with search query is title ", async function () {
         let query = { title: 'Junior Backend Developer' };
         console.log(query)
         let c = await Job.getBySearch(query);
 
-        expect(c).toEqual(
-            [{ title: "Junior Backend Developer", company_handle: "amazon" }]);
-    });
 
     test("can get companies with search query is company ", async function () {
         let query = { company_handle: 'amazon' };
@@ -86,13 +96,17 @@ describe("Test Company Class", function () {
             { title: "Senior Backend Developer", company_handle: "amazon" }]);
     });
 
-    test("can get title with search query is min_salary", async function () {
-        let query = { min_salary: 200000 };
-        let c = await Job.getBySearch(query);
+    expect(c).toEqual([
+      { title: "Administrative assistant", company_handle: "apple" },
+      { title: "Fullstack Developer", company_handle: "apple" },
+      { title: "Senior Backend Developer", company_handle: "amazon" },
+      { title: "Junior Backend Developer", company_handle: "amazon" },
+    ]);
+  });
 
-        expect(c).toEqual(
-            [{ title: "Fullstack Developer", company_handle: "apple" }]);
-    });
+  xtest("can get companies with search query is title ", async function () {
+    let query = { title: 'Junior Backend Developer' };
+    let c = await Job.getBySearch(query);
 
     test("can get companies with search query is min equity", async function () {
         let query = { min_equity: 0.04 };
@@ -105,28 +119,50 @@ describe("Test Company Class", function () {
             );
     });
 
-    test("can get companies with search query is min_salary and company_hanlde", async function () {
-        let query = { min_salary: 200000,  company_handle: 'apple'  };
-        let c = await Job.getBySearch(query);
+    expect(c).toEqual(
+      [{ title: "Junior Backend Developer", company_handle: "amazon" },
+      { title: "Backend Backend Developer", company_handle: "amazon" }]);
+  });
 
-        expect(c).toEqual(
-            [{ title: "Fullstack Developer", company_handle: "apple" }]);
-    });
-    
-    test("Will get error message if there is no match 1", async function () {
-        let query = { max_employees: 1 };
+  xtest("can get title with search query is min_salary", async function () {
+    let query = { min_salary: 200000 };
+    let c = await Job.getBySearch(query);
 
-        try {
-            await Job.getBySearch(query);
-        } catch (err) {
-            expect(err.message).toEqual("No matching companies.");
-        }
-    });
+    expect(c).toEqual(
+      [{ title: "Fullstack Developer", company_handle: "apple" }]);
+  });
+
+  xtest("can get companies with search query is min equity", async function () {
+    let query = { min_equity: 0.04 };
+    let c = await Job.getBySearch(query);
+
+    expect(c).toEqual(
+      [{ title: "Fullstack Developer", company_handle: "apple" },
+      { title: "Senior Backend Developer", company_handle: "amazon" }]);
+  });
+
+  xtest("can get companies with search query is min_salary and company_hanlde", async function () {
+    let query = { min_salary: 200000, company_handle: 'apple' };
+    let c = await Job.getBySearch(query);
+
+    expect(c).toEqual(
+      [{ title: "Fullstack Developer", company_handle: "apple" }]);
+  });
+
+  xtest("Will get error message if there is no match 1", async function () {
+    let query = { max_employees: 1 };
+
+    try {
+      await Job.getBySearch(query);
+    } catch (err) {
+      expect(err.message).toEqual("No matching companies.");
+    }
+  });
 
 });
 
 
 
 afterAll(async function () {
-    await db.end();
+  await db.end();
 });

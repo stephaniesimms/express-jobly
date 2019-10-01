@@ -7,36 +7,31 @@ class Job {
   /** Create a new job. Return an object containing all job data.
    Return { id:.., title:.., salary:.., equity:.., company_handle:.., date_posted:.. } */
   static async create({ title, salary, equity, company_handle }) {
-    // check for duplicate job by searching for ???, if found error
-    // let checkForJob = await db.query(
-    //   `SELECT title 
-    //     FROM jobs
-    //     WHERE title=$1`,
-    //     [title]);
-    // )
-    // if (checkForJob.rows.length > 0) {
-    //   const err = new Error(`Job already exists`);
-    //   err.status = 400;
-    //   throw err;
-    // }
-
     const result = await db.query(
       `INSERT INTO jobs (
         title,
         salary,
         equity,
-        company_handle)
-      VALUES ($1, $2, $3, $4)
+        company_handle,
+        date_posted)
+      VALUES ($1, $2, $3, $4, current_timestamp)
       RETURNING id, title, salary, equity, company_handle, date_posted`,
       [title, salary, equity, company_handle]);
+<<<<<<< HEAD
       console.log('result is', result.rows[0])
+=======
+    
+>>>>>>> 02930cedf19db598488d285eed4486a0db05264f
       return result.rows[0];
   }
 
   /** Get all jobs. Return a list of job objects [{ title: ..., company_handle: ... }]
     or an empty list if no jobs exist */
   static async getAll() {
-    const results = await db.query(`SELECT title, company_handle FROM jobs`);
+    const results = await db.query(
+      `SELECT title, company_handle 
+        FROM jobs
+        ORDER BY date_posted DESC`);
     return results.rows;
   }
 
@@ -92,6 +87,7 @@ class Job {
 
   /** Return specific job based on id */
   static async getOne(id) {
+    console.log(typeof id)
     const result = await db.query(
       `SELECT title, salary, equity, company_handle
         FROM jobs
@@ -103,6 +99,7 @@ class Job {
       err.status = 404;
       throw err;
     }
+    
     return result.rows[0];
   }
 

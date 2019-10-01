@@ -26,18 +26,28 @@ router.get('/', async function (req, res, next) {
   } catch (err) {
     return next(err);
   }
+  
   return res.json({ jobs });
 });
 
 /** GET /jobs/[id] 
 Returns a single job found by its id as JSON of {job: jobData} */
 router.get('/:id', async function (req, res, next) {
+<<<<<<< HEAD
   try {
     
     const job = await Job.getOne(req.params.id);
 
+=======
+  let queryId = +req.params.id;
+  try {
+    console.log("hello")
+    const job = await Job.getOne(queryId);
+   
+>>>>>>> 02930cedf19db598488d285eed4486a0db05264f
     return res.json({ job });
   } catch (err) {
+    
     return next(err);
   }
 });
@@ -46,6 +56,7 @@ router.get('/:id', async function (req, res, next) {
 Creates a new job and returns it as JSON of { job: jobData } */
 router.post('/', async function (req, res, next) {
   try {
+    
     const validate = jsonschema.validate(req.body, jobPostSchema);
 
     if (!validate.valid) {
@@ -67,6 +78,7 @@ router.patch('/:id', async function (req, res, next) {
     const validate = jsonschema.validate(req.body, jobPatchSchema);
 
     if (!validate.valid) {
+      
       let listOfErrors = validate.errors.map(error => error.stack);
       throw new ExpressError(listOfErrors, 400);
     }
