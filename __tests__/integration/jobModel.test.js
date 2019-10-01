@@ -1,12 +1,12 @@
 const { Company } = require("../../models/company")
-const { Job } = require("../../models/job")
+const Job  = require("../../models/job")
 
 const db = require("../../db");
 
 
-
 describe("Test Company Class", function () {
     beforeEach(async function () {
+      
         await db.query("DELETE FROM companies");
 
         let c1 = await Company.create({
@@ -58,7 +58,6 @@ describe("Test Company Class", function () {
 
 
     test("can get all jobs with no search query", async function () {
-
         let c = await Job.getAll();
 
         expect(c).toEqual(
@@ -71,6 +70,7 @@ describe("Test Company Class", function () {
 
     test("can get companies with search query is title ", async function () {
         let query = { title: 'Junior Backend Developer' };
+        console.log(query)
         let c = await Job.getBySearch(query);
 
         expect(c).toEqual(
@@ -78,12 +78,12 @@ describe("Test Company Class", function () {
     });
 
     test("can get companies with search query is company ", async function () {
-        let query = { company_handle: 'apple' };
+        let query = { company_handle: 'amazon' };
         let c = await Job.getBySearch(query);
 
         expect(c).toEqual(
             [{ title: "Junior Backend Developer", company_handle: "amazon" },
-            { title: "Backend Backend Developer", company_handle: "amazon" }]);
+            { title: "Senior Backend Developer", company_handle: "amazon" }]);
     });
 
     test("can get title with search query is min_salary", async function () {
@@ -97,10 +97,12 @@ describe("Test Company Class", function () {
     test("can get companies with search query is min equity", async function () {
         let query = { min_equity: 0.04 };
         let c = await Job.getBySearch(query);
+        console.log(c)
 
         expect(c).toEqual(
-            [{ title: "Fullstack Developer", company_handle: "apple" },
-            { title: "Senior Backend Developer", company_handle: "amazon" }]);
+            [ { title: 'Senior Backend Developer', company_handle: 'amazon' },
+            { title: 'Fullstack Developer', company_handle: 'apple' } ]
+            );
     });
 
     test("can get companies with search query is min_salary and company_hanlde", async function () {

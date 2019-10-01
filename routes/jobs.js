@@ -1,6 +1,6 @@
 const Router = require("express").Router;
 const ExpressError = require("../helpers/expressError");
-const Jobs = require("../models/job");
+const Job = require("../models/job");
 
 const jsonschema = require("jsonschema");
 const jobPostSchema = require("../schemas/jobPostSchema.json");
@@ -19,6 +19,7 @@ router.get('/', async function (req, res, next) {
   try {
     if (Object.keys(req.query).length === 0) {
       jobs = await Job.getAll();
+     
     } else {
       jobs = await Job.getBySearch(req.query);
     }
@@ -30,9 +31,11 @@ router.get('/', async function (req, res, next) {
 
 /** GET /jobs/[id] 
 Returns a single job found by its id as JSON of {job: jobData} */
-router.get('/:handle', async function (req, res, next) {
+router.get('/:id', async function (req, res, next) {
   try {
+    
     const job = await Job.getOne(req.params.id);
+
     return res.json({ job });
   } catch (err) {
     return next(err);

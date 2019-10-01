@@ -6,7 +6,7 @@ class Company {
   /** create new company. 
    * Return  { handle: ..., name: ... , num_employees, description, logo_url...} */
   static async create({ handle, name, num_employees, description, logo_url }) {
-
+   
     // check for duplicate company by searching for handle, if found throw error
     let checkForCompany = await db.query(
       `SELECT handle, name 
